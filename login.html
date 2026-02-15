@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login - Cyberbullying Prevention</title>
+
+  <style>
+    /* ===== EXISTING BODY STYLE (UNCHANGED) ===== */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    .login-box {
+      width: 350px;
+      margin: 120px auto;
+      padding: 25px;
+      background: white;
+      box-shadow: 0 0 10px gray;
+      text-align: center;
+      border-radius: 5px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+
+    button {
+      padding: 10px 30px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    #msg {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    /* ============================= */
+    /* 🔥🔥🔥 CYBER DARK THEME ADDITION 🔥🔥🔥 */
+    /* ============================= */
+
+    body {
+      background: radial-gradient(circle at center, #0f2027, #0b0f1a 70%);
+      color: #00f7ff;
+      overflow: hidden;
+    }
+
+    /* Camera scan animation background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 255, 255, 0.05) 0px,
+        rgba(0, 255, 255, 0.05) 2px,
+        transparent 2px,
+        transparent 4px
+      );
+      animation: scan 4s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scan {
+      from { background-position: 0 0; }
+      to { background-position: 0 100px; }
+    }
+
+    /* Login box upgrade */
+    .login-box {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid #00f7ff;
+      box-shadow: 0 0 25px #00f7ff;
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      animation: glowPulse 2s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      from { box-shadow: 0 0 10px #00f7ff; }
+      to { box-shadow: 0 0 30px #00f7ff; }
+    }
+
+    /* Title cyber effect */
+    .login-box h2 {
+      color: #00f7ff;
+      text-shadow: 0 0 10px #00f7ff;
+      margin-bottom: 15px;
+    }
+
+    /* Inputs cyber style */
+    input {
+      background: black;
+      border: 1px solid #00f7ff;
+      color: #00f7ff;
+      border-radius: 6px;
+    }
+
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 10px #00f7ff;
+    }
+
+    /* Button upgrade */
+    button {
+      background: linear-gradient(45deg, #00f7ff, #0066ff);
+      box-shadow: 0 0 10px #00f7ff;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px #00f7ff;
+    }
+
+    /* Emoji lock icon */
+    .lock-icon {
+      font-size: 30px;
+      margin-bottom: 10px;
+      animation: blink 1.5s infinite alternate;
+    }
+
+    @keyframes blink {
+      from { opacity: 0.6; }
+      to { opacity: 1; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="login-box">
+  <!-- 🔥 Added Cyber Icon -->
+  <div class="lock-icon">🔐🛡️</div>
+
+  <h2>Cyber Security Login 👁️</h2>
+
+  <input type="text" id="username" placeholder="👤 Username">
+  <input type="password" id="password" placeholder="🔑 Password">
+
+  <br><br>
+  <button onclick="login()">🚀 Secure Login</button>
+
+  <p id="msg"></p>
+</div>
+
+<script>
+  function login() {
+    var user = document.getElementById("username").value.trim();
+    var pass = document.getElementById("password").value.trim();
+
+    if (user === "admin" && pass === "1234") {
+
+      localStorage.setItem("loggedIn", "true");
+
+      document.getElementById("msg").style.color = "#00ff99";
+      document.getElementById("msg").innerHTML = "✅ Access Granted 🛡️";
+
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 800);
+
+    } else {
+      document.getElementById("msg").style.color = "red";
+      document.getElementById("msg").innerHTML = "❌ Unauthorized Access 🚫";
+    }
+  }
+</script>
+
+</body>
+</html>

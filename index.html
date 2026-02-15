@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Cyberbullying Prevention System</title>
+
+  <style>
+    body {
+      margin:0;
+      font-family: Arial;
+      background: radial-gradient(circle at center, #0f2027, #203a43, #000);
+      color:#fff;
+    }
+
+    .container {
+      width:70%;
+      margin:30px auto;
+      background: rgba(0,0,0,0.8);
+      padding:25px;
+      border-radius:12px;
+      box-shadow:0 0 20px #00f2ff;
+      position:relative;
+      overflow:hidden;
+    }
+
+    h3 {
+      color:#00f2ff;
+      text-shadow:0 0 10px #00f2ff;
+    }
+
+    input, button {
+      padding:10px;
+      margin-top:10px;
+      border-radius:6px;
+      border:none;
+    }
+
+    input { width:70%; }
+
+    button {
+      background:#00f2ff;
+      color:#000;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    button:hover { box-shadow:0 0 10px #00f2ff; }
+
+    video {
+      width:100%;
+      margin-top:15px;
+      border-radius:10px;
+      box-shadow:0 0 15px #00f2ff;
+    }
+
+    .comment {
+      background:#111;
+      padding:10px;
+      margin-top:8px;
+      border-left:4px solid #00f2ff;
+      border-radius:5px;
+    }
+
+    .blocked {
+      border-left:4px solid red;
+      color:#ff4d4d;
+      animation: flash 1s infinite;
+    }
+
+    @keyframes flash {
+      0% {opacity:1;}
+      50% {opacity:0.5;}
+      100% {opacity:1;}
+    }
+
+    .safe-glow {
+      animation: safePulse 1.5s infinite;
+      color:#00ff88;
+      font-weight:bold;
+    }
+
+    @keyframes safePulse {
+      0% { text-shadow:0 0 5px #00ff88;}
+      50% { text-shadow:0 0 20px #00ff88;}
+      100% { text-shadow:0 0 5px #00ff88;}
+    }
+
+    .scanner-line {
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:3px;
+      background:#00ff88;
+      box-shadow:0 0 10px #00ff88;
+      animation: scan 2s linear infinite;
+      display:none;
+    }
+
+    @keyframes scan {
+      0% {top:0;}
+      100% {top:100%;}
+    }
+
+    .logout {
+      float:right;
+      background:red;
+      color:white;
+    }
+
+    .confidence {
+      font-size:12px;
+      color:#aaa;
+    }
+
+    .video-item {
+      cursor:pointer;
+      color:#00f2ff;
+      margin-top:6px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="scanner-line" id="scanner"></div>
+
+<button class="logout" onclick="logout()">Logout 🚪</button>
+
+<h3>📹 Upload Video</h3>
+<input type="file" id="videoInput">
+<button onclick="uploadVideo()">Upload 🚀</button>
+<p id="uploadStatus"></p>
+
+<video id="player" controls style="display:none;"></video>
+
+<hr>
+
+<h3>🎬 Uploaded Videos</h3>
+<div id="videoList"></div>
+
+<hr>
+
+<h3>💬 Comments Section</h3>
+<input id="commentInput" placeholder="Type your comment...">
+<button onclick="postComment()">Post 🛰️</button>
+<div id="comments"></div>
+
+</div>
+
+<script>
+
+if (localStorage.getItem("loggedIn") !== "true")
+  location.href = "login.html";
+
+
+/* ---------- 🔊 GENTLE SOUND ENGINE ---------- */
+
+function playGood() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = 700;
+  gain.gain.value = 0.04;
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.25);
+}
+
+function playBad() {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = 220;
+  gain.gain.value = 0.05;
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.35);
+}
+
+
+/* ---------- VIDEO UPLOAD ---------- */
+async function uploadVideo() {
+
+  const file = videoInput.files[0];
+  if (!file) return;
+
+  const fd = new FormData();
+  fd.append("video", file);
+
+  scanner.style.display = "block";
+  uploadStatus.innerHTML = "🤖 AI scanning video...";
+
+  const res = await fetch("/upload", { method:"POST", body:fd });
+  const data = await res.json();
+
+  scanner.style.display = "none";
+
+  if (data.status === "SAFE") {
+    uploadStatus.innerHTML = "<span class='safe-glow'>✅ SAFE – Video Approved 🛡️</span>";
+    playGood();   // 🔊 SAFE SOUND
+  } else {
+    uploadStatus.innerHTML = "<span class='blocked'>🚨 BLOCKED – Unsafe Content Detected</span>";
+    playBad();    // 🔊 BLOCK SOUND
+  }
+
+  loadVideos();
+}
+
+
+/* ---------- LOAD VIDEOS ---------- */
+async function loadVideos() {
+  const res = await fetch("/videos");
+  const videos = await res.json();
+  videoList.innerHTML = "";
+
+  videos.forEach(v => {
+    const div = document.createElement("div");
+    div.className = "video-item";
+    div.innerText = "🔗 " + v.url;
+
+    div.onclick = () => {
+      player.src = v.url;
+      player.style.display = "block";
+      player.play();
+    };
+
+    videoList.appendChild(div);
+  });
+}
+
+
+/* ---------- COMMENTS ---------- */
+async function postComment() {
+
+  const text = commentInput.value;
+  if (!text) return;
+
+  const res = await fetch("/comment", {
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body:JSON.stringify({ text })
+  });
+
+  const data = await res.json();
+
+  const div = document.createElement("div");
+  div.className = "comment";
+
+  if (data.status === "BLOCKED") {
+    div.classList.add("blocked");
+    div.innerHTML = "🚨 Comment Blocked by AI <br><span class='confidence'>AI Confidence: " + (data.confidence || "High") + "</span>";
+    playBad();   // 🔊 BAD SOUND
+  } else {
+    div.innerHTML = "💬 " + text + "<br><span class='confidence'>AI Confidence: Safe</span>";
+    playGood();  // 🔊 GOOD SOUND
+  }
+
+  comments.appendChild(div);
+  commentInput.value = "";
+}
+
+
+/* ---------- LOAD COMMENTS ---------- */
+async function loadComments() {
+  const res = await fetch("/comments");
+  const data = await res.json();
+  comments.innerHTML = "";
+  data.forEach(c => {
+    const d = document.createElement("div");
+    d.className = "comment";
+    d.innerText = c.text;
+    comments.appendChild(d);
+  });
+}
+
+
+/* ---------- LOGOUT ---------- */
+function logout() {
+  localStorage.removeItem("loggedIn");
+  location.href = "login.html";
+}
+
+loadVideos();
+loadComments();
+
+</script>
+
+</body>
+</html>
